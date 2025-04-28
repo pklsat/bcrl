@@ -7,8 +7,6 @@ https://github.com/SmartGridLab/battery-control-by-reinforcement-learning
 サブモジュールを更新したら.gitフォルダ内の定義ファイルのサブモジュール参照先が変更されるので変更をコミットしてからpushしてください。
 
 # build～pushまで
-./build_docker.sh
-
 ## 初回Clone
 ```
 # サブモジュールも含めてclone
@@ -37,6 +35,10 @@ git submodule status
 ## メモ
 ### 初回リポジトリ作成時に実施
 ```
-git clone git@github.com:pklsat/bcrlapi.git
+mkdir bcrlapi
+cd bcrlapi
+git init
 git submodule add git@github.com:SmartGridLab/battery-control-by-reinforcement-learning.git bcrl
+git remote add origin git@pklsat:pklsat/bcrlapi.git
+git push -u origin main
 ```
