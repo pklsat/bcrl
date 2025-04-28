@@ -41,7 +41,7 @@ def readResponseJson():
         return json.load(f)
 
 @app.post("/simulate/", response_model=SocResponse)
-async def simulate_json(req: SocRequest):
+def simulate_json(req: SocRequest):
     reqdict = req.dict()
     reqjson = json.dumps(reqdict)
     writeRequestJson(reqjson)

@@ -5,6 +5,7 @@ https://github.com/SmartGridLab/battery-control-by-reinforcement-learning
 このリポジトリではサブモジュール内の内容は変更しないでください。
 サブモジュールは```git submodule update --remote```で更新してください。
 サブモジュールを更新したら.gitフォルダ内の定義ファイルのサブモジュール参照先が変更されるので変更をコミットしてからpushしてください。
+仕様はdocuments参照。
 
 # build～pushまで
 ## 初回Clone
