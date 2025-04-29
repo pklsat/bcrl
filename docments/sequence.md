@@ -23,6 +23,6 @@ sequenceDiagram
 
     host-->>+api: trigger(1→0)
 
-    api->>host: Read result.csv
+    api->>host: Read response.json
     api->>-Client: Response
 ```

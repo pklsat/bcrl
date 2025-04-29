@@ -1,13 +1,14 @@
 services:
-  # bcrl:
-  #   build:
-  #     context: ./bcrl
-  #     dockerfile: "./.devcontainer/Dockerfile"
-  #   ports:
-  #     - "4000:4000"
-  #   volumes:
-  #     - .:/bcrl
-  #   command: sleep infinity
+  bcrl:
+    build:
+      context: ./bcrl/.devcontainer
+      dockerfile: "./Dockerfile"
+    ports:
+      - "4000:4000"
+    volumes:
+      - ..:/bcrl
+      - shared:/shared/bcrlapi/json
+    command: sleep infinity
   fastapi:
     build:
       context: ./fastapi
@@ -20,11 +21,14 @@ services:
   # web:
   #   image: nginx:latest
   #   ports:
-  #     - "8080:80"
+  #     - "4002:80"
   #   volumes:
   #     - ./html:/usr/share/nginx/html
   #   networks:
   #     - mynetwork
+  # MOC
+  app:
+  client:
 volumes:
   shared:
 
