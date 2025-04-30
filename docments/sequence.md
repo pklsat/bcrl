@@ -1,28 +1,68 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Client
+    participant cli as Client
     participant api as APIServer
+    participant req as reqest/[uuid].json
+    participant sat as status.json
+    participant res as respons/[uuid].json
     participant app as APPServer
-    participant host as Shared
 
-    note over host: Flag.txt：0
-    app-->>host: Monitor Flag.txt(0→1)
-    api-->>host: Monitor Flag.txt(1→0)
 
-    Client->>+api: Request
-    api->>host: Write request.json
-    api->>-host: Update flag file (0→1)
-    note over host: Flag.txt：1
+    par monitor/1min
+        app -->> sat: cron monitor {status:pending}
+    end
 
-    host-->>+app: trigger(0→1)
+    rect rgb(191, 255, 241)
+        par async
+            cli ->> api: POST /submit, {SocRequest}
+            api ->> req: new
+            note over req : xxx.json
+            api ->> sat: add ★FileLock
+            note over sat : {uuid:xxx, api:soc, status:pending}
+        end
+    end
 
-    app->>host: result.csv
-    app->>-host: Update flag file (1→0)
-    note over host: Flag.txt：0
+    par async
+        cli ->>+ api: GET /jobs/{uuid}/status
+        api ->> sat: read
+        api ->>- cli: {JobStatusResponse}
+    end
 
-    host-->>+api: trigger(1→0)
+    app -->> sat: cron monitor {status:pending}
+    app -->> sat: cron update ★FileLock
+    note over sat : {uuid:xxx, api:soc, status:processing}
+    app ->> app: main.py
+    activate app
+    
+    par async
+        cli ->>+ api: GET /jobs/{uuid}/status
+        api ->> sat: read
+        api ->>- cli: {JobStatusResponse}
+    end
 
-    api->>host: Read response.json
-    api->>-Client: Response
-```
+    rect rgb(191, 255, 241)
+        par async
+            cli ->> api: POST /submit, {SocRequest}
+            api ->> req: new
+            note over req : xxx.json
+            api ->> sat: add ★FileLock
+            note over sat : {uuid:xxx, api:soc, status:pending}
+        end
+    end
+
+    app ->> res: new
+    note over res : xxx.json
+    app ->> sat: update ★FileLock
+    deactivate app
+    note over sat : {uuid:xxx, api:soc, status:done}
+
+    par async
+        cli ->>+ api: /jobs/{uuid}/status
+        api ->> sat: read
+        api ->>- cli: {JobStatusResponse}
+    end
+
+    cli ->>+ api: GET jobs/{uuid}/results
+    api ->> res: read xxx.json
+    api ->>- cli: {SocResponse}

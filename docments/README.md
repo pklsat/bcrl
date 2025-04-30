@@ -1,28 +1,54 @@
 # 仕様
+まずは正常系を作る。
 ## APPサーバとのI/F
 APPサーバとAPIサーバのI/Fはファイルの入出力とする。I/Fとするファイル群はdockerのsharedボリューム内にまとめる。  
-APIサーバから見るとrequest.jsonに書き込み、APPサーバのデータ更新後response.jsonを読み込む形になると嬉しい。  
-構成図上ではCSVからデータを収集して読み込むことにしているが、どのデータを取得するのかなど、仕様に関するやり取りが複雑になりすぎる。
 
-例えばAPIに応じてapiディレクトリを増やして、その中にrequest.jsonとresponse.jsonを格納していく。  
-この辺りはいくらでも工夫の仕様があるのでTBD、watchdogのベストプラクティスにもよる。　　
+UUIDをリクエストIDとして使用する。  
+APPサーバとのI/FはAPIからみて出力をrequest/{uuid}.json、入力をresponse/{uuid}.jsonとする。
+リクエスト毎にUUIDを生成し、リクエストの内容をrequest/{uuid}.jsonに書き込む。
+{uuid}.jsonファイル内にAPI名を含めることでAPIを特定する。
+また、リクエストの内容をstatus.jsonに書き込む。
+response/{uuid}.jsonはAPPサーバが処理を終えた後に書き込まれ、APIサーバから非同期に読み込まれる。
 
 コンテナ内では以下のように見える。
 ```
 /shared/bcrlapi/
-    json/
-        apiA/
-            request.json
-            response.json
-            existNewRequest.txt
-        apiB/
-            request.json
-            response.json
-            existNewRequest.txt
-        ...
+        request/
+            {uuid}.json
+            status.json
+        response/
+            {uuid}.json
 ```
 
 データフローはsystem components.drawio.svgおよびsequence参照。
+
+## APPサーバのcron
+status.jsonに対して１分間隔で監視する。
+status.jsonはAPPサーバの状態を示すjsonファイルで、以下のような内容を持つ。
+```json
+{
+    "jobs": [
+        {
+            "uuid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "api": "soc",
+            "status": "pending",
+            "request_date": "2023-10-01T00:00:00+09:00"
+        },
+        ...
+    ]
+}
+```
+
+statusのパラメータは以下のように定義する。
+- pending: 処理待ち
+- processing: 処理中
+- done: 処理完了
+
+cronからstatusパラメータを監視し、pendingのuuidを取得する。
+からprocessingに変更されたらAPPサーバの処理を開始する。
+statusのチェックは上から順に行い、pendingのuuidがあればそのuuidを使用する。
+
+リクエストで増えていくデータはすべて1週間分残して、それ以上をデイリーで削除する。
 
 # 検討過程
 APIの実行頻度が低く、処理速度はそんなに必要ないので案3を採用。
@@ -47,8 +73,12 @@ I/Fをファイルの入出力にすることでAPPサーバ側の実装難易�
 ## APPサーバの仕様
 1. APIがたたかれる頻度：5分に1回
 2. 処理時間：1リクエストあたり数分
-3. 並列処理したいリクエスト数：？
-4. 履歴：？
+3. 並列処理したいリクエスト数：TBD
+4. job履歴の件数：TBD
+
+## APPサーバのcronの監視間隔
+短すぎるとCPUを食いそうなので、とりあえず1分間隔で監視する。
+性能に応じて変更する。
 
 # APPサーバに実装してほしい部分
 - watchdogでフラグファイル/shared/bcrlapi/flag/frag.txtを監視する
@@ -61,6 +91,7 @@ I/Fをファイルの入出力にすることでAPPサーバ側の実装難易�
 1. リクエストを出して、進捗状況を取得するAPI
 2. 進捗状況を取得するAPI
 3. 結果を取得するAPI
+
 
 # TBD
 ## リクエストの管理方法

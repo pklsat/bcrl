@@ -1,19 +1,32 @@
 from pydantic import BaseModel
 from typing import List
+from uuid import UUID as uuid
 
+# Job API(Common)
+class JobSubmitResponse(BaseModel):
+    api: str = None
+    req_id: uuid = None
+    message: str = None
 
-# SocRequest Model
+class JobStatusResponse(BaseModel):
+    req_id: uuid = None
+    api: str = None
+    status: str = None
+
+#SOC API
 class SocRequest(BaseModel):
-    current_soc: float
-    month: int
-    day: int
-    hour: int
-    minute: int
+    api: str = None
+    current_soc: float = None
+    month: int = None
+    day: int = None
+    hour: int = None
+    minute: int = None
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
+                    "api": "soc",
                     "current_soc": 65.3,
                     "month": 9,
                     "day": 1,
@@ -24,21 +37,18 @@ class SocRequest(BaseModel):
         }
     }
 
+class SocSchedule(BaseModel):
+    hour: int = None
+    minute: int = None
+    soc: float = None
 
-# SocResponse Model
-class Schedule(BaseModel):
-    hour: int
-    minute: int
-    soc: float
-
-
-class Metadata(BaseModel):
-    request_soc: float
-    request_date: str
-    generated_at: str
-    message: str
-
+class SocMetadata(BaseModel):
+    request_soc: float = None
+    request_date: str = None
+    generated_at: str = None
+    message: str = None
 
 class SocResponse(BaseModel):
-    schedule: List[Schedule]
-    metadata: Metadata
+    req_id: uuid = None
+    schedule: List[SocSchedule] = None
+    metadata: SocMetadata = None
