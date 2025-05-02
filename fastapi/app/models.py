@@ -12,6 +12,7 @@ class JobStatusResponse(BaseModel):
     req_id: uuid = None
     api: str = None
     status: str = None
+    req_date: str = None
 
 #SOC API
 class SocRequest(BaseModel):

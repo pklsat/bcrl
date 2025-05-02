@@ -15,10 +15,21 @@ git clone --recurse-submodules git@github.com:pklsat/bcrlapi.git
 
 # build
 ```
-# コンテナをバックグラウンドで起動。
-docker-compose up -d
+# テスト用ビルド
+docker-compose --profile mock up -d
+# コンテナの停止
+docker-compose --profile mock stop
+# コンテナとボリュームの削除
+docker-compose --profile mock down -v
 
-# イメージのリビルドが必要なとき。
+#　本番環境用ビルド
+docker-compose --profile production up -d
+# コンテナの停止
+docker-compose --profile mock stop
+# コンテナとボリュームの削除
+docker-compose --profile production down -v
+
+# イメージのリビルド
 docker-compose build  
 ```
 

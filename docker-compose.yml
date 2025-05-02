@@ -1,5 +1,6 @@
 services:
   bcrl:
+    profiles: ["production"]
     build:
       context: ./bcrl/.devcontainer
       dockerfile: "./Dockerfile"
@@ -19,7 +20,7 @@ services:
       - ./fastapi:/fastapi
       - shared:/shared
     entrypoint: [ "/fastapi/entrypoint.sh" ]
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
     working_dir: /fastapi
   # web:
   #   image: nginx:latest
@@ -29,8 +30,19 @@ services:
   #     - ./html:/usr/share/nginx/html
   #   networks:
   #     - mynetwork
-  # MOC
-  # app:
+  bcrlmock:
+    profiles: ["mock"]
+    build:
+      context: ./bcrlmock
+      dockerfile: "./Dockerfile"
+    ports:
+      - "4003:80"
+    volumes:
+      - ./bcrlmock:/bcrlmock
+      - shared:/shared
+    command: python -u /bcrlmock/app/status_monitor.py
   # client:
+    # profiles: ["mock"]
+
 volumes:
   shared:
