@@ -50,6 +50,9 @@ statusのチェックは上から順に行い、pendingのuuidがあればその
 
 リクエストで増えていくデータはすべて1週間分残して、それ以上をデイリーで削除する。
 
+# テスト用MOC
+テスト用にAPPサーバMOCとクライアントMOCを作成する。
+
 # 検討過程
 APIの実行頻度が低く、処理速度はそんなに必要ないので案3を採用。
 ## 案1：APPサーバをそのままAPIサーバ化する
@@ -81,10 +84,12 @@ I/Fをファイルの入出力にすることでAPPサーバ側の実装難易�
 性能に応じて変更する。
 
 # APPサーバに実装してほしい部分
-- watchdogでフラグファイル/shared/bcrlapi/flag/frag.txtを監視する
-- フラグが更新されたらリクエストのデータを/shared/bcrlapi/json/request.jsonに読み込む
-- もしくは必要なデータを集めて/shared/bcrlapi/json/response.jsonを作ってくれるとすごくうれしい。(２回目)
-- 処理が完了したらフラグファイルを更新する0→1
+- cronでstatus.jsonを監視して、pendingのuuidを取得する
+- uuidを取得したら、status.jsonのuuidのstatusをpendingからprocessingに変更する
+- リクエストのデータを/shared/bcrlapi/request/{uuid}.jsonを読み込む
+- main.pyを実行する
+- main.pyの実行結果を/shared/bcrlapi/response/{uuid}.jsonに書き込む
+- 処理が完了したらstatus.jsonのuuidのstatusをprocessingからdoneに変更する
 
 # APIの非同期化
 リクエストの応答に数分かかるため、APIを分割して非同期化する。
