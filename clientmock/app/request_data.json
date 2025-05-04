@@ -1,0 +1,18 @@
+{
+    "sample1": {
+        "api": "soc",
+        "current_soc": 65.3,
+        "day": 1,
+        "hour": 0,
+        "minute": 30,
+        "month": 9
+    },
+    "sample2": {
+        "api": "soc",
+        "current_soc": 65.3,
+        "day": 2,
+        "hour": 0,
+        "minute": 30,
+        "month": 9
+    }
+}

@@ -1,16 +1,17 @@
 {
-  "schedule": [
-    { "hour": 0, "minute": 0, "SoC": 50.0 },
-    { "hour": 0, "minute": 30, "SoC": 50.1 },
-    { "hour": 1, "minute": 0, "SoC": 50.2 },
-    { "hour": 1, "minute": 30, "SoC": 50.3 },
-    { "hour": 23, "minute": 0, "SoC": 54.6 },
-    { "hour": 23, "minute": 30, "SoC": 54.7 }
-  ],
-  "metadata": {
-    "request_soc": 65.3,
-    "request_date": "9/1 0:30",
-    "generated_at": "2024-09-01 00:31:02",
-    "message": "Success"
+  "api": "soc",
+  "req_id": "123e4567-e89b-12d3-a456-426614174000",
+  "message": "Success",
+  "soc_response": {
+      "schedule": [
+          {"hour": 0, "minute": 30, "soc": 65.3},
+          {"hour": 1, "minute": 0, "soc": 66.0},
+      ],
+      "metadata": {
+          "request_soc": 65.3,
+          "request_date": "2023-09-01T00:30:00Z",
+          "generated_at": "2023-09-01T01:00:00Z",
+          "message": "Generated successfully"
+      }
   }
 }

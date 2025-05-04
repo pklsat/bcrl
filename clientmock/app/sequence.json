@@ -1,0 +1,29 @@
+{
+    "sequence": [
+        {
+            "api_name": "post_submit_soc",
+            "req_body": "sample1",
+            "interval": 0
+        },
+        {
+            "api_name": "get_job_status",
+            "req_body": "",
+            "interval": 1
+        },
+        {
+            "api_name": "get_job_status",
+            "req_body": "",
+            "interval": 30
+        },
+        {
+            "api_name": "get_job_status",
+            "req_body": "",
+            "interval": 30
+        },
+        {
+            "api_name": "get_job_result",
+            "req_body": "",
+            "interval": 0
+        }
+    ]
+}

@@ -8,30 +8,32 @@ import time
 REPONSE_DIR = Path("/shared/bcrlapi/response/")
 SIMULATION_INTERVAL_SECONDS = 30  # sec
 
-def generate_dummy_data() -> dict:
-    schedule = [
-        {"hour": 0, "minute": 0, "SoC": 50.0},
-        {"hour": 0, "minute": 30, "SoC": 50.1},
-        {"hour": 1, "minute": 0, "SoC": 50.2},
-        {"hour": 1, "minute": 30, "SoC": 50.3},
-        {"hour": 23, "minute": 0, "SoC": 54.6},
-        {"hour": 23, "minute": 30, "SoC": 54.7}
+def generate_dummy_data(req_id:str) -> dict:
+    schedule= [
+        {"hour": 0, "minute": 0, "soc": 65.3},
+        {"hour": 1, "minute": 0, "soc": 66.1},
+        {"hour": 2, "minute": 0, "soc": 67.5},
+        {"hour": 3, "minute": 0, "soc": 68.2}
     ]
-
     metadata = {
         "request_soc": 65.3,
-        "request_date": "9/1 0:30",
+        "request_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "message": "Success"
+        "message": "Generated successfully"
     }
-
-    return {
+    soc_response = {
         "schedule": schedule,
         "metadata": metadata
     }
+    return {
+        "api": "soc",
+        "req_id": req_id,
+        "message": "success",
+        "soc_response": soc_response
+    }
 
 def create_response(req_id: str):
-    response_data = generate_dummy_data()
+    response_data = generate_dummy_data(req_id)
     response_file_path = REPONSE_DIR / f"{str(req_id)}.json"
     if response_file_path.exists(): 
         print(f"[MAIN] [INFO] Response file {response_file_path} already exists.")
@@ -54,8 +56,8 @@ def main():
     print(f"[MAIN] [INFO] Processing req_id: {req_id}")
     time.sleep(SIMULATION_INTERVAL_SECONDS)
     create_response(req_id)
-    status_monitor.update_status(req_id, "completed")
-    print(f"[MAIN] [INFO] Job {req_id} completed.")
+    status_monitor.update_status(req_id, "Completed")
+    print(f"[MAIN] [INFO] Job {req_id} Completed.")
     return None
 
 if __name__ == "__main__":

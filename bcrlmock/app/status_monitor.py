@@ -49,20 +49,17 @@ def monitor_jobs():
     while True:
         try:
             status_json = load_status()
-            job_index_list = find_jobs(status_json, "status", "pending")
+            job_index_list = find_jobs(status_json, "status", "Pending")
             if not job_index_list:
                 print(f"[MONITOR] [INFO] Monitoring... Rechecking in {CHECK_INTERVAL_SECONDS} seconds.")
                 time.sleep(CHECK_INTERVAL_SECONDS)
                 continue
             status_json["jobs"][job_index_list[0]]["status"] = "Processing"
             req_id = status_json["jobs"][job_index_list[0]]["req_id"]
-            # status更新
             print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to Processing")
             save_status(status_json)
-            # main.pyを実行
             subprocess.run(["python", MAIN_SCRIPT, req_id], check=True)
-            # main.pyの実行が成功したらstatusをcompletedに更新
-            update_status(req_id, "completed")
+            update_status(req_id, "Completed")
             print(f"[MONITOR] [INFO] Job {req_id} completed.")
             time.sleep(CHECK_INTERVAL_SECONDS)
         except Exception as e:

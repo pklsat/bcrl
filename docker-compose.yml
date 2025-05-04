@@ -41,8 +41,15 @@ services:
       - ./bcrlmock:/bcrlmock
       - shared:/shared
     command: python -u /bcrlmock/app/status_monitor.py
-  # client:
-    # profiles: ["mock"]
-
+  clientmock:
+    profiles: ["mock"]
+    build:
+      context: ./clientmock
+      dockerfile: "./Dockerfile"
+    ports:
+      - "4004:80"
+    command: sleep infinity
+    volumes:
+      - ./clientmock:/clientmock
 volumes:
   shared:
