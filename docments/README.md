@@ -60,16 +60,6 @@ I/Fをファイルの入出力にすることでAPPサーバ側の実装難易�
 短すぎるとCPUを食いそうなので、とりあえず1分間隔で監視する。
 性能に応じて変更する。
 
-# APPサーバに実装してほしい部分
-- bcrlmockの実装
-    - main.py
-        - リクエストのデータ/shared/bcrlapi/request/{uuid}.jsonを読み込む
-        - 実行結果のレスポンスを/shared/bcrlapi/response/{uuid}.jsonに書き込む
-    - status_monitor.py(bcrlmock)の実装
-        - 定期的にstatus.jsonを読み込み、statusがPendingのリクエストを取得する
-        - status.jsonのuuidのstatusをPendingからProcessingに変更し、main.pyを実行する
-        - 処理が完了したらstatus.jsonのuuidのstatusをProcessingからCompletedに変更する
-
 # APIの非同期化
 リクエストの応答に数分かかるため、APIを分割して非同期化する。
 1. リクエストを出して、進捗状況を取得するAPI

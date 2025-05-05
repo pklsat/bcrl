@@ -40,7 +40,7 @@ services:
     volumes:
       - ./bcrlmock:/bcrlmock
       - shared:/shared
-    command: python -u /bcrlmock/app/status_monitor.py
+    command: python -u /bcrlmock/app/status_monitor.py 30
   clientmock:
     profiles: ["mock"]
     build:
