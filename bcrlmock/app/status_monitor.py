@@ -67,7 +67,7 @@ def monitor_jobs(check_interval_seconds):
             print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to Processing")
             save_status(status_json)
             # メインスクリプトを実行し完了を待つ
-            subprocess.run(["python", MAIN_SCRIPT, req_id], check=True)
+            subprocess.run(["python", MAIN_SCRIPT, req_id, str(check_interval_seconds)], check=True)
             update_status(req_id, "Completed")
             print(f"[MONITOR] [INFO] Job {req_id} completed.")
             time.sleep(check_interval_seconds)

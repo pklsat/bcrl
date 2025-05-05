@@ -13,6 +13,23 @@ app = FastAPI()
 status_path = Path("/shared/bcrlapi/request/status.json")
 
 
+@app.get("/jobs/", response_model=List[JobStatusResponse])
+def get_job_list():
+    with open(status_path, "r") as f:
+        status_dict = json.load(f)
+    job_list = []
+    for job in status_dict["jobs"]:
+        job_list.append(
+            JobStatusResponse(
+                req_id=job["req_id"],
+                api=job["api"],
+                status=job["status"],
+                req_date=job["req_date"],
+            )
+        )
+    return job_list
+
+
 def add_new_job(req_id: uuid.UUID, api: str):
     newjob = {
         "req_id": req_id,
@@ -74,23 +91,6 @@ def get_job_result(req_id: str):
     with open(path, "r") as f:
         res = json.load(f)
     return Response(**res)
-
-
-@app.get("/jobs/", response_model=List[JobStatusResponse])
-def get_job_list():
-    with open(status_path, "r") as f:
-        status_dict = json.load(f)
-    job_list = []
-    for job in status_dict["jobs"]:
-        job_list.append(
-            JobStatusResponse(
-                req_id=job["req_id"],
-                api=job["api"],
-                status=job["status"],
-                req_date=job["req_date"],
-            )
-        )
-    return job_list
 
 
 @app.get("/jobs/delete/{req_id}", response_model=JobResponse)

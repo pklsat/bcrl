@@ -51,7 +51,7 @@ def mock(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argment("req_id", type=str, help="Request ID")
+    parser.add_argument("req_id", type=str, help="Request ID")
     parser.add_argument("main_interval", type=int, help="Main interval in seconds")
     args = parser.parse_args()
 
