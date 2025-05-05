@@ -8,13 +8,15 @@ import argparse
 baseurl = "http://fastapi:80/"
 request_data_path = "./request_data.json"
 
+
 class Sequence:
     req_id = None
+
     def __init__(self):
         self.step_data = None
         self.req_body = None
         self.status = None
-        
+
     def post_submit_soc(self) -> requests.Response:
         url = baseurl + "submit/"
         response = requests.post(url, json=self.req_body)
@@ -48,10 +50,12 @@ class Sequence:
         else:
             print("Request failed with status code:", response.status_code)
 
+
 def load_json(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return data
+
 
 def api_handler(step) -> requests.Response:
     api_list = {
@@ -65,6 +69,7 @@ def api_handler(step) -> requests.Response:
     else:
         print("API execution failed.")
 
+
 def run_sequence(sequence_path) -> None:
     seq_data = load_json(sequence_path)
     req_data = load_json(request_data_path)
@@ -72,21 +77,23 @@ def run_sequence(sequence_path) -> None:
         step = Sequence()
         step.step_data = step_dict
         step.req_body = req_data.get(step_dict["req_body"], {})
-        time.sleep(step_dict['interval'])
+        time.sleep(step_dict["interval"])
         print(f"★Executing API: {step_dict['api_name']}")
         api_handler(step)
     print("All APIs executed.")
 
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("sequence_file")
+    parser.add_argument("sequence_file", type=str, help="Path to the sequence file.")
     args = parser.parse_args()
 
     if not os.path.isfile(args.sequence_file):
         print(f"Not found '{args.sequence_file}'", file=sys.stderr)
         sys.exit(1)
 
-    run_sequence(args.sequence_file)    
+    run_sequence(args.sequence_file)
+
 
 if __name__ == "__main__":
     main()

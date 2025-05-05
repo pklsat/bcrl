@@ -2,10 +2,12 @@ from pydantic import BaseModel
 from typing import List
 from uuid import UUID as uuid
 
+
 # Job API(Common)
 class JobResponse(BaseModel):
     req_id: uuid = None
     message: str = None
+
 
 class JobStatusResponse(BaseModel):
     req_id: uuid = None
@@ -13,7 +15,8 @@ class JobStatusResponse(BaseModel):
     status: str = None
     req_date: str = None
 
-#SOC API
+
+# SOC API
 class SocRequest(BaseModel):
     api: str = None
     current_soc: float = None
@@ -37,10 +40,12 @@ class SocRequest(BaseModel):
         }
     }
 
+
 class SocSchedule(BaseModel):
     hour: int = None
     minute: int = None
     soc: float = None
+
 
 class SocMetadata(BaseModel):
     request_soc: float = None
@@ -48,9 +53,11 @@ class SocMetadata(BaseModel):
     generated_at: str = None
     message: str = None
 
+
 class SocResponse(BaseModel):
     schedule: List[SocSchedule] = None
     metadata: SocMetadata = None
+
 
 class Response(BaseModel):
     api: str = None

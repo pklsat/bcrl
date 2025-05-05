@@ -12,17 +12,21 @@ app = FastAPI()
 
 status_path = Path("/shared/bcrlapi/request/status.json")
 
+
 def add_new_job(req_id: uuid.UUID, api: str):
     newjob = {
         "req_id": req_id,
         "api": api,
         "status": "Pending",
-        "req_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "req_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     try:
         with open(status_path, "r", encoding="utf-8") as f:
             status_data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):  # ファイルがない、または読み込みエラーの場合
+    except (
+        FileNotFoundError,
+        json.JSONDecodeError,
+    ):  # ファイルがない、または読み込みエラーの場合
         status_data = {"jobs": []}  # 初期化
     if "jobs" not in status_data:
         status_data["jobs"] = []
@@ -40,16 +44,14 @@ def submit_soc(req: SocRequest = Body(...)):
     with open(req_path, "w") as f:
         json.dump(req_json, f, indent=4)
     add_new_job(req_id, req.api)
-    return JobResponse(
-        message="Job submitted successfully", req_id=req_id
-    )
+    return JobResponse(message="Job submitted successfully", req_id=req_id)
 
 
 @app.get("/jobs/status/{req_id}", response_model=JobStatusResponse)
 def get_job_status(req_id: str):
     with open(status_path, "r") as f:
         status_dict = json.load(f)
-    for job in status_dict["jobs"]: # TODO: ここを関数化する
+    for job in status_dict["jobs"]:  # TODO: ここを関数化する
         if job["req_id"] == req_id:
             msg = job["status"]
             api = job["api"]
@@ -57,17 +59,22 @@ def get_job_status(req_id: str):
     else:
         api = ""
         msg = "not found"
-    return JobStatusResponse(req_id=req_id, api=api, status=msg, req_date=job["req_date"])
+    return JobStatusResponse(
+        req_id=req_id, api=api, status=msg, req_date=job["req_date"]
+    )
 
 
 @app.get("/jobs/results/{req_id}", response_model=Response)
 def get_job_result(req_id: str):
     path = Path("/shared/bcrlapi/response/" + req_id + ".json")
     if not path.exists():
-        raise HTTPException(status_code=404, detail="Result not found for req_id: " + req_id)
+        raise HTTPException(
+            status_code=404, detail="Result not found for req_id: " + req_id
+        )
     with open(path, "r") as f:
         res = json.load(f)
     return Response(**res)
+
 
 @app.get("/jobs/", response_model=List[JobStatusResponse])
 def get_job_list():
@@ -75,13 +82,16 @@ def get_job_list():
         status_dict = json.load(f)
     job_list = []
     for job in status_dict["jobs"]:
-        job_list.append(JobStatusResponse(
-            req_id=job["req_id"],
-            api=job["api"],
-            status=job["status"],
-            req_date=job["req_date"]
-        ))
+        job_list.append(
+            JobStatusResponse(
+                req_id=job["req_id"],
+                api=job["api"],
+                status=job["status"],
+                req_date=job["req_date"],
+            )
+        )
     return job_list
+
 
 @app.get("/jobs/delete/{req_id}", response_model=JobResponse)
 def delete_job(req_id: str):
@@ -95,6 +105,4 @@ def delete_job(req_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
     with open(status_path, "w") as f:
         json.dump(status_dict, f, ensure_ascii=False, indent=4)
-    return JobResponse(
-        message="Job deleted successfully", req_id=req_id
-    )
+    return JobResponse(message="Job deleted successfully", req_id=req_id)

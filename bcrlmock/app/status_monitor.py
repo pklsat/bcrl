@@ -3,22 +3,30 @@ import time
 import subprocess
 import traceback
 import sys
+import argparse
 
 STATUS_FILE = "/shared/bcrlapi/request/status.json"
 MAIN_SCRIPT = "/bcrlmock/app/main.py"
 
-CHECK_INTERVAL_SECONDS = 10 #sec
 
-# status.jsonを読み込みjobsを取得
-def load_status()-> dict:
+def load_status() -> dict:
     try:
         with open(STATUS_FILE, "r", encoding="utf-8") as f:
             status_data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):  # ファイルがない、または読み込みエラーの場合
+    except (
+        FileNotFoundError,
+        json.JSONDecodeError,
+    ):  # ファイルがない、または読み込みエラーの場合
         status_data = {"jobs": []}  # 初期化
     if "jobs" not in status_data:
         status_data["jobs"] = []
     return status_data
+
+
+def save_status(status_data):
+    with open(STATUS_FILE, "w", encoding="utf-8") as f:
+        json.dump(status_data, f, indent=2, ensure_ascii=False)
+
 
 # jobsのkeyとvalueを指定してstatus.jsonの中から該当するjobのindexリストを取得
 def find_jobs(status_json, key, value) -> list:
@@ -28,10 +36,6 @@ def find_jobs(status_json, key, value) -> list:
             job_index_list.append(i)
     return job_index_list
 
-# status.jsonに書き込む
-def save_status(status_data):
-    with open(STATUS_FILE, "w", encoding="utf-8") as f:
-        json.dump(status_data, f, indent=2, ensure_ascii=False)
 
 # status.jsonの中のjobのstatusを更新する
 def update_status(req_id: str, status: str):
@@ -45,31 +49,42 @@ def update_status(req_id: str, status: str):
         print(f"[MONITOR] [INFO] No job found for req_id: {req_id}")
     return
 
-def monitor_jobs():
+
+def monitor_jobs(check_interval_seconds):
     while True:
         try:
             status_json = load_status()
             job_index_list = find_jobs(status_json, "status", "Pending")
             if not job_index_list:
-                print(f"[MONITOR] [INFO] Monitoring... Rechecking in {CHECK_INTERVAL_SECONDS} seconds.")
-                time.sleep(CHECK_INTERVAL_SECONDS)
+                print(
+                    f"[MONITOR] [INFO] Monitoring... Rechecking in {check_interval_seconds} seconds."
+                )
+                time.sleep(check_interval_seconds)
                 continue
+            # 一番上のPending jobに対して処理する
             status_json["jobs"][job_index_list[0]]["status"] = "Processing"
             req_id = status_json["jobs"][job_index_list[0]]["req_id"]
             print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to Processing")
             save_status(status_json)
+            # メインスクリプトを実行し完了を待つ
             subprocess.run(["python", MAIN_SCRIPT, req_id], check=True)
             update_status(req_id, "Completed")
             print(f"[MONITOR] [INFO] Job {req_id} completed.")
-            time.sleep(CHECK_INTERVAL_SECONDS)
+            time.sleep(check_interval_seconds)
         except Exception as e:
             print(f"[MONITOR] [ERROR] Error: {e}")
             traceback.print_exc()
             sys.exit(1)
 
-# mainloop
+
 def main():
-    monitor_jobs()
-        
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "interval", type=int, help="Interval in seconds to check for new jobs."
+    )
+    args = parser.parse_args()
+    monitor_jobs(args.interval)
+
+
 if __name__ == "__main__":
     main()
