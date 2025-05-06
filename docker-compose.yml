@@ -3,17 +3,16 @@ services:
     profiles: ["production"]
     build:
       context: ./bcrl/.devcontainer
-      dockerfile: "./Dockerfile"
     ports:
       - "4000:4000"
     volumes:
       - ./bcrl:/bcrl
       - shared:/shared
     command: sleep infinity
+
   fastapi:
     build:
       context: ./fastapi
-      dockerfile: "./Dockerfile"
     ports:
       - "4001:80"
     volumes:
@@ -22,34 +21,38 @@ services:
     entrypoint: [ "/fastapi/entrypoint.sh" ]
     command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
     working_dir: /fastapi
-  # web:
-  #   image: nginx:latest
-  #   ports:
-  #     - "4002:80"
-  #   volumes:
-  #     - ./html:/usr/share/nginx/html
-  #   networks:
-  #     - mynetwork
+
+  bcrlweb:
+    profiles: ["production"]
+    build:
+      context: ./bcrlweb
+    ports:
+      - "4002:5173"
+    volumes:
+      - ./bcrlweb/app:/app
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+
   bcrlmock:
     profiles: ["mock"]
     build:
       context: ./bcrlmock
-      dockerfile: "./Dockerfile"
     ports:
       - "4003:80"
     volumes:
       - ./bcrlmock:/bcrlmock
       - shared:/shared
     command: python -u /bcrlmock/app/status_monitor.py 30
+
   clientmock:
     profiles: ["mock"]
     build:
       context: ./clientmock
-      dockerfile: "./Dockerfile"
     ports:
       - "4004:80"
     command: sleep infinity
     volumes:
       - ./clientmock:/clientmock
+
 volumes:
   shared:

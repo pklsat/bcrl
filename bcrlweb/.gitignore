@@ -1,0 +1,26 @@
+# Node.js の依存関係
+node_modules/
+
+# ロックファイル (依存関係のバージョン管理ファイル)
+package-lock.json
+yarn.lock
+
+# ビルド成果物
+/dist
+/build
+
+# キャッシュファイル
+/.vite/
+/.cache/
+
+# ログファイル
+npm-debug.log
+yarn-error.log
+
+# IDE の設定ファイル
+.vscode/
+.idea/
+
+# その他の不要なファイル
+.DS_Store  # macOS
+Thumbs.db   # Windows
