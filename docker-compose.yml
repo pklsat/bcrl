@@ -1,6 +1,6 @@
 services:
   bcrl:
-    profiles: ["production"]
+    profiles: ["dev"]
     build:
       context: ./bcrl/.devcontainer
     ports:
@@ -11,6 +11,7 @@ services:
     command: sleep infinity
 
   fastapi:
+    profiles: ["mock"]
     build:
       context: ./fastapi
     ports:
@@ -23,7 +24,7 @@ services:
     working_dir: /fastapi
 
   bcrlweb:
-    profiles: ["production"]
+    profiles: ["mock"]
     build:
       context: ./bcrlweb
     ports:
