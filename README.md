@@ -20,8 +20,8 @@ docker-compose --profile dev up -d --build
 docker-compose --profile dev down -v
 
 # テストTBD
-docker-compose --profile mock up -d --build
-docker-compose --profile mock down -v
+docker-compose --profile test up -d --build
+docker-compose --profile test down -v
 
 # 本番TBD
 docker-compose --profile production up -d --build
