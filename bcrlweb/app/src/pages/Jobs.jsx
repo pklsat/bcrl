@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-function JobList() {
+function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false); // ← 初期値 false に変更
   const [error, setError] = useState(null);
@@ -15,6 +16,26 @@ function JobList() {
       if (!response.ok) throw new Error('データの取得に失敗しました');
       const data = await response.json();
       setJobs(data); // ← 配列をそのままセット
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ジョブを削除する関数
+  const handleDelete = async (req_id) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/jobs/delete/${req_id}`);
+
+      if (!response.ok) throw new Error('削除に失敗しました');
+
+      // 成功した場合、該当のジョブをリストから削除
+      setJobs(prevJobs => prevJobs.filter(job => job.req_id !== req_id));
+      alert('ジョブが削除されました');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,6 +61,10 @@ function JobList() {
             <p><strong>API:</strong> {job.api}</p>
             <p><strong>Status:</strong> {job.status}</p>
             <p><strong>Req Date:</strong> {job.req_date}</p>
+            <Link to={`/jobs/${job.req_id}`}>Result</Link>
+            <div>
+              <button onClick={() => handleDelete(job.req_id)}>Delete</button>
+            </div>
           </li>
         ))}
       </ul>
@@ -47,4 +72,4 @@ function JobList() {
   );
 }
 
-export default JobList;
+export default Jobs;

@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://fastapi:80', // ← Docker内のFastAPIホスト名
+        target: 'http://fastapi', // ← Docker内のFastAPIホスト名
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, ''),
       },

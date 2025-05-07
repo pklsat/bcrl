@@ -1,6 +1,6 @@
 services:
   bcrl:
-    profiles: ["dev"]
+    profiles: ["mock"]
     build:
       context: ./bcrl/.devcontainer
     ports:
@@ -11,7 +11,7 @@ services:
     command: sleep infinity
 
   fastapi:
-    profiles: ["mock"]
+    profiles: ["dev"]
     build:
       context: ./fastapi
     ports:
@@ -24,7 +24,7 @@ services:
     working_dir: /fastapi
 
   bcrlweb:
-    profiles: ["mock"]
+    profiles: ["dev"]
     build:
       context: ./bcrlweb
     ports:
@@ -35,7 +35,7 @@ services:
     command: npm run dev -- --host 0.0.0.0 --port 5173
 
   bcrlmock:
-    profiles: ["mock"]
+    profiles: ["dev"]
     build:
       context: ./bcrlmock
     ports:
