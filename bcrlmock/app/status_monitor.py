@@ -17,9 +17,9 @@ def load_status() -> dict:
         FileNotFoundError,
         json.JSONDecodeError,
     ):  # ファイルがない、または読み込みエラーの場合
-        status_data = {"jobs": []}  # 初期化
+        status_data = {"jobs": {}}  # 初期化
     if "jobs" not in status_data:
-        status_data["jobs"] = []
+        status_data["jobs"] = {}
     return status_data
 
 
@@ -31,9 +31,10 @@ def save_status(status_data):
 # jobsのkeyとvalueを指定してstatus.jsonの中から該当するjobのindexリストを取得
 def find_jobs(status_json, key, value) -> list:
     job_index_list = []
-    for i, job in enumerate(status_json["jobs"]):
-        if job.get(key) == value:
-            job_index_list.append(i)
+    # jobsは辞書型でreq_idをキーにしてjobデータが格納されていることを確認
+    for req_id, job in status_json["jobs"].items():
+        if isinstance(job, dict) and job.get(key) == value:  # jobが辞書型であることを確認
+            job_index_list.append(req_id)  # req_idをリストに追加
     return job_index_list
 
 
@@ -42,7 +43,7 @@ def update_status(req_id: str, status: str):
     status_json = load_status()
     job_index_list = find_jobs(status_json, "req_id", req_id)
     if job_index_list:
-        status_json["jobs"][job_index_list[0]]["status"] = status
+        status_json["jobs"][req_id]["status"] = status
         save_status(status_json)
         print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to {status}")
     else:
@@ -62,8 +63,8 @@ def monitor_jobs(check_interval_seconds):
                 time.sleep(check_interval_seconds)
                 continue
             # 一番上のPending jobに対して処理する
-            status_json["jobs"][job_index_list[0]]["status"] = "Processing"
-            req_id = status_json["jobs"][job_index_list[0]]["req_id"]
+            req_id = job_index_list[0]
+            status_json["jobs"][req_id]["status"] = "Processing"
             print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to Processing")
             save_status(status_json)
             # メインスクリプトを実行し完了を待つ

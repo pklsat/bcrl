@@ -3,19 +3,20 @@ import { Link } from 'react-router-dom';
 
 function Jobs() {
   const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(false); // ← 初期値 false に変更
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 非同期でジョブ一覧を取得する関数
+  // ジョブ一覧を取得
   const fetchJobs = async () => {
     setLoading(true);
-    setError(null); // エラーをクリア
+    setError(null);
 
     try {
-      const response = await fetch('/api/jobs/');
+      const response = await fetch('/api/jobs');
       if (!response.ok) throw new Error('データの取得に失敗しました');
       const data = await response.json();
-      setJobs(data); // ← 配列をそのままセット
+      const jobArray = Object.values(data.jobs || {});
+      setJobs(jobArray);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -23,17 +24,17 @@ function Jobs() {
     }
   };
 
-  // ジョブを削除する関数
+  // ジョブを削除
   const handleDelete = async (req_id) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/jobs/delete/${req_id}`);
-
+      const response = await fetch(`/api/jobs/delete/${req_id}`, {
+        method: 'DELETE',
+      });
       if (!response.ok) throw new Error('削除に失敗しました');
 
-      // 成功した場合、該当のジョブをリストから削除
       setJobs(prevJobs => prevJobs.filter(job => job.req_id !== req_id));
       alert('ジョブが削除されました');
     } catch (err) {
@@ -46,11 +47,8 @@ function Jobs() {
   return (
     <div>
       <h1>ジョブ一覧</h1>
-
-      {/* ボタンクリックで fetchJobs を実行 */}
       <button onClick={fetchJobs}>ジョブ一覧を取得</button>
 
-      {/* 状態に応じた表示 */}
       {loading && <p>読み込み中...</p>}
       {error && <p style={{ color: 'red' }}>エラー: {error}</p>}
 

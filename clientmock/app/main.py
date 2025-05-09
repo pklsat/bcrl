@@ -5,7 +5,7 @@ import sys
 import os
 import argparse
 
-baseurl = "http://fastapi:80/"
+baseurl = "http://bcrlapi:80/"
 request_data_path = "./request_data.json"
 
 

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict
 from uuid import UUID as uuid
 
 
@@ -9,12 +9,14 @@ class JobResponse(BaseModel):
     message: str = None
 
 
-class JobStatusResponse(BaseModel):
+class JobStatus(BaseModel):
     req_id: uuid = None
     api: str = None
     status: str = None
     req_date: str = None
 
+class JobStatusResponse(BaseModel):
+    jobs: Dict[uuid, JobStatus] = None
 
 # SOC API
 class SocRequest(BaseModel):

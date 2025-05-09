@@ -27,7 +27,7 @@ function Submit() {
     setError(null);
     setResponse(null);
     try {
-      const res = await fetch('/api/submit/', {
+      const res = await fetch('/api/submit', {
         method: 'POST',
         headers: {
           'accept': 'application/json',

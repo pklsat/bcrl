@@ -5,8 +5,8 @@ echo "Entrypoint received arguments: $@"
 mkdir -p /shared/bcrlapi/request
 mkdir -p /shared/bcrlapi/response
 if [ ! -f /shared/bcrlapi/request/status.json ]; then
-    cp /fastapi/init-status.json /shared/bcrlapi/request/status.json
+    cp /bcrlapi/init-status.json /shared/bcrlapi/request/status.json
     # MOCK用の初期データをコピー
-    cp /fastapi/response.json /shared/bcrlapi/response/00000000-0000-0000-0000-000000000000.json
+    cp /bcrlapi/response.json /shared/bcrlapi/response/00000000-0000-0000-0000-000000000000.json
 fi
 exec "$@"
