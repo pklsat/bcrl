@@ -4,87 +4,115 @@ import subprocess
 import traceback
 import sys
 import argparse
-
-STATUS_FILE = "/shared/bcrlapi/request/status.json"
-MAIN_SCRIPT = "/bcrlmock/app/main.py"
+from typing import Dict, List
 
 
-def load_status() -> dict:
-    try:
-        with open(STATUS_FILE, "r", encoding="utf-8") as f:
-            status_data = json.load(f)
-    except (
-        FileNotFoundError,
-        json.JSONDecodeError,
-    ):  # ファイルがない、または読み込みエラーの場合
-        status_data = {"jobs": {}}  # 初期化
-    if "jobs" not in status_data:
-        status_data["jobs"] = {}
-    return status_data
+class StatusManager:
+    def __init__(self, status_file: str):
+        self.status_file = status_file
 
-
-def save_status(status_data):
-    with open(STATUS_FILE, "w", encoding="utf-8") as f:
-        json.dump(status_data, f, indent=2, ensure_ascii=False)
-
-
-# jobsのkeyとvalueを指定してstatus.jsonの中から該当するjobのindexリストを取得
-def find_jobs(status_json, key, value) -> list:
-    job_index_list = []
-    # jobsは辞書型でreq_idをキーにしてjobデータが格納されていることを確認
-    for req_id, job in status_json["jobs"].items():
-        if isinstance(job, dict) and job.get(key) == value:  # jobが辞書型であることを確認
-            job_index_list.append(req_id)  # req_idをリストに追加
-    return job_index_list
-
-
-# status.jsonの中のjobのstatusを更新する
-def update_status(req_id: str, status: str):
-    status_json = load_status()
-    job_index_list = find_jobs(status_json, "req_id", req_id)
-    if job_index_list:
-        status_json["jobs"][req_id]["status"] = status
-        save_status(status_json)
-        print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to {status}")
-    else:
-        print(f"[MONITOR] [INFO] No job found for req_id: {req_id}")
-    return
-
-
-def monitor_jobs(check_interval_seconds):
-    while True:
+    def load(self) -> Dict:
+        """Load the status JSON from file."""
         try:
-            status_json = load_status()
-            job_index_list = find_jobs(status_json, "status", "Pending")
-            if not job_index_list:
-                print(
-                    f"[MONITOR] [INFO] Monitoring... Rechecking in {check_interval_seconds} seconds."
-                )
-                time.sleep(check_interval_seconds)
-                continue
-            # 一番上のPending jobに対して処理する
-            req_id = job_index_list[0]
-            status_json["jobs"][req_id]["status"] = "Processing"
-            print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to Processing")
-            save_status(status_json)
-            # メインスクリプトを実行し完了を待つ
-            subprocess.run(["python", MAIN_SCRIPT, req_id, str(check_interval_seconds)], check=True)
-            update_status(req_id, "Completed")
+            with open(self.status_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {"jobs": {}}
+        if "jobs" not in data:
+            data["jobs"] = {}
+        return data
+
+    def save(self, data: Dict):
+        """Save the status JSON to file."""
+        with open(self.status_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    def find_jobs(self, data: Dict, key: str, value: str) -> List[str]:
+        """Find job req_ids matching given key/value pair."""
+        return [
+            req_id
+            for req_id, job in data.get("jobs", {}).items()
+            if isinstance(job, dict) and job.get(key) == value
+        ]
+
+    def update_status(self, data: Dict, req_id: str, status: str) -> bool:
+        """Update status of a given job and save."""
+        if req_id in data.get("jobs", {}):
+            data["jobs"][req_id]["status"] = status
+            self.save(data)
+            print(f"[MONITOR] [INFO] Updated status for req_id: {req_id} to {status}")
+            return True
+        else:
+            print(f"[MONITOR] [WARN] No job found for req_id: {req_id}")
+            return False
+
+
+class JobRunner:
+    def __init__(self, main_script: str, status_manager: StatusManager):
+        self.main_script = main_script
+        self.status_manager = status_manager
+
+    def run(self, req_id: str, interval: int):
+        """Run the main script for the given job and update its status."""
+        try:
+            subprocess.run(
+                ["python", self.main_script, req_id, str(interval)],
+                check=True
+            )
+            status_data = self.status_manager.load()
+            self.status_manager.update_status(status_data, req_id, "Completed")
             print(f"[MONITOR] [INFO] Job {req_id} completed.")
-            time.sleep(check_interval_seconds)
-        except Exception as e:
-            print(f"[MONITOR] [ERROR] Error: {e}")
-            traceback.print_exc()
-            sys.exit(1)
+        except subprocess.CalledProcessError as e:
+            print(f"[MONITOR] [ERROR] Failed to run script for job {req_id}: {e}")
+            raise
+
+
+class JobMonitor:
+    def __init__(self, interval: int, status_manager: StatusManager, job_runner: JobRunner):
+        self.interval = interval
+        self.status_manager = status_manager
+        self.job_runner = job_runner
+
+    def start(self):
+        """Start the monitoring loop."""
+        while True:
+            try:
+                status_data = self.status_manager.load()
+                pending_jobs = self.status_manager.find_jobs(status_data, "status", "Pending")
+
+                if not pending_jobs:
+                    print(f"[MONITOR] [INFO] No pending jobs. Rechecking in {self.interval} seconds.")
+                    time.sleep(self.interval)
+                    continue
+
+                req_id = pending_jobs[0]
+                self.status_manager.update_status(status_data, req_id, "Processing")
+                self.job_runner.run(req_id, self.interval)
+
+            except Exception as e:
+                print(f"[MONITOR] [ERROR] {e}")
+                traceback.print_exc()
+                sys.exit(1)
+
+            time.sleep(self.interval)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("interval", type=int, help="Interval (in seconds) between checks.")
+    parser.add_argument("--status-file", default="/shared/bcrlapi/request/status.json", help="Path to status JSON.")
+    parser.add_argument("--main-script", default="/bcrlmock/app/main.py", help="Main script to execute.")
+    return parser.parse_args()
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "interval", type=int, help="Interval in seconds to check for new jobs."
-    )
-    args = parser.parse_args()
-    monitor_jobs(args.interval)
+    args = parse_args()
+
+    status_manager = StatusManager(args.status_file)
+    job_runner = JobRunner(args.main_script, status_manager)
+    monitor = JobMonitor(args.interval, status_manager, job_runner)
+
+    monitor.start()
 
 
 if __name__ == "__main__":
