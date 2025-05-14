@@ -1,0 +1,3 @@
+[submodule "bcrlapp"]
+	path = bcrlapp
+	url = git@github.com:SmartGridLab/battery-control-by-reinforcement-learning.git
