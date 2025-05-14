@@ -3,59 +3,82 @@ import json
 from pathlib import Path
 from datetime import datetime
 import time
-
-REPONSE_DIR = Path("/shared/bcrlapi/response/")
-SIMULATION_INTERVAL_SECONDS = 30  # sec
+from typing import Dict, List
 
 
-def generate_dummy_data(req_id: str) -> dict:
-    schedule = [
-        {"hour": 0, "minute": 0, "soc": 65.3},
-        {"hour": 1, "minute": 0, "soc": 66.1},
-        {"hour": 2, "minute": 0, "soc": 67.5},
-        {"hour": 3, "minute": 0, "soc": 68.2},
-    ]
-    metadata = {
-        "request_soc": 65.3,
-        "request_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "message": "Generated successfully",
-    }
-    soc_response = {"schedule": schedule, "metadata": metadata}
-    response = {
-        "api": "soc",
-        "req_id": req_id,
-        "message": "success",
-        "soc_response": soc_response,
-    }
-    return response
+class DummyResponseGenerator:
+    def __init__(self, response_dir: Path, interval: int = 30):
+        self.response_dir = response_dir
+        self.interval = interval
+        self.response_dir.mkdir(parents=True, exist_ok=True)
+
+    def generate_schedule(self) -> List[Dict]:
+        return [
+            {"hour": 0, "minute": 0, "soc": 65.3},
+            {"hour": 1, "minute": 0, "soc": 66.1},
+            {"hour": 2, "minute": 0, "soc": 67.5},
+            {"hour": 3, "minute": 0, "soc": 68.2},
+        ]
+
+    def generate_metadata(self, request_soc: float) -> Dict:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return {
+            "request_soc": request_soc,
+            "request_date": now,
+            "generated_at": now,
+            "message": "Generated successfully",
+        }
+
+    def generate_response(self, req_id: str) -> Dict:
+        request_soc = 65.3  # デモ用の固定値（将来パラメータ化も可能）
+        schedule = self.generate_schedule()
+        metadata = self.generate_metadata(request_soc)
+        return {
+            "api": "soc",
+            "req_id": req_id,
+            "message": "success",
+            "soc_response": {
+                "schedule": schedule,
+                "metadata": metadata,
+            },
+        }
+
+    def save_response(self, req_id: str):
+        response_data = self.generate_response(req_id)
+        file_path = self.response_dir / f"{req_id}.json"
+
+        if file_path.exists():
+            print(f"[MAIN] [INFO] Response file {file_path} already exists.")
+            return
+
+        with file_path.open("w", encoding="utf-8") as f:
+            json.dump(response_data, f, indent=4, ensure_ascii=False)
+        print(f"[MAIN] [INFO] Response data saved to {file_path}")
+
+    def run(self, req_id: str):
+        print(f"[MAIN] [INFO] Processing req_id: {req_id}")
+        time.sleep(self.interval)
+        self.save_response(req_id)
+        print(f"[MAIN] [INFO] Job {req_id} completed.")
 
 
-def create_response(req_id: str):
-    response_data = generate_dummy_data(req_id)
-    response_file_path = REPONSE_DIR / f"{str(req_id)}.json"
-    if response_file_path.exists():
-        print(f"[MAIN] [INFO] Response file {response_file_path} already exists.")
-        return
-    with open(response_file_path, "w", encoding="utf-8") as f:
-        json.dump(response_data, f, indent=4, ensure_ascii=False)
-    print(f"[MAIN] [INFO] Response data saved to {response_file_path}")
-
-
-def mock(args):
-    print(f"[MAIN] [INFO] Processing req_id: {args.req_id}")
-    time.sleep(args.main_interval)
-    create_response(args.req_id)
-    print(f"[MAIN] [INFO] Job {args.req_id} Completed.")
-
-
-def main():
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("req_id", type=str, help="Request ID")
     parser.add_argument("main_interval", type=int, help="Main interval in seconds")
-    args = parser.parse_args()
+    parser.add_argument(
+        "--response-dir",
+        type=Path,
+        default=Path("/shared/bcrlapi/response/"),
+        help="Directory to save response JSON",
+    )
+    return parser.parse_args()
 
-    mock(args)
+
+def main():
+    args = parse_args()
+    generator = DummyResponseGenerator(response_dir=args.response_dir, interval=args.main_interval)
+    generator.run(args.req_id)
 
 
 if __name__ == "__main__":

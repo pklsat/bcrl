@@ -58,9 +58,9 @@ git submodule status
 ## メモ
 ### 初回リポジトリ作成時に実施
 ```
-mkdir bcrlapi
-cd bcrlapi
+mkdir bcrl
+cd bcrl
 git init
-git submodule add git@github.com:SmartGridLab/battery-control-by-reinforcement-learning.git bcrl
-git remote add origin git@github.com:pklsat/bcrlapi.git
+git submodule add git@github.com:SmartGridLab/battery-control-by-reinforcement-learning.git bcrlapp
+git remote add origin git@github.com:pklsat/bcrl.git
 git push -u origin main
