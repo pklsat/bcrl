@@ -22,6 +22,7 @@ class JobStatusResponse(BaseModel):
 class SocRequest(BaseModel):
     api: str = None
     current_soc: float = None
+    year: int = None
     month: int = None
     day: int = None
     hour: int = None
@@ -33,6 +34,7 @@ class SocRequest(BaseModel):
                 {
                     "api": "soc",
                     "current_soc": 65.3,
+                    "year": 2022,
                     "month": 9,
                     "day": 1,
                     "hour": 0,

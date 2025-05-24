@@ -4,6 +4,7 @@ function Submit() {
   const [formData, setFormData] = useState({
     api: 'soc',
     current_soc: 65.3,
+    year: 2022,
     day: 1,
     hour: 0,
     minute: 30,
@@ -56,6 +57,10 @@ function Submit() {
         <label>
           Current SOC:
           <input type="number" step="0.1" name="current_soc" value={formData.current_soc} onChange={handleChange} />
+        </label><br />
+        <label>
+          Year:
+          <input type="number" name="year" value={formData.year} onChange={handleChange} />
         </label><br />
         <label>
           Month:
