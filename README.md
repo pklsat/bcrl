@@ -8,44 +8,53 @@ https://github.com/SmartGridLab/battery-control-by-reinforcement-learning
 仕様はdocuments参照。
 
 # 初回Clone
+サブモジュールも含めてclone
 ```
-# サブモジュールも含めてclone
 git clone --recurse-submodules git@github.com:pklsat/bcrlapi.git
 ```
 
 # build
+## 開発環境
+起動
 ```
-# 開発
 docker-compose --profile dev up -d --build
+```
+停止
+```
 docker-compose --profile dev down -v
-
-# テストTBD
+```
+## テスト環境
+起動
+```
 docker-compose --profile test up -d --build
+```
+停止
+```
 docker-compose --profile test down -v
+```
 
-# 本番TBD
+## 本番環境
+起動
+```
 docker-compose --profile production up -d --build
+```
+停止
+```
 docker-compose --profile production down -v
-
-
 ```
 
 ## サブモジュールの更新
+すべてのリモートブランチを更新
 ```
-# すべてのリモートブランチを更新
 git submodule update --remote
 ```
 
 ## サブモジュールの変更を取り消し
-main.pyを実行した後にできるcsvなどを初期化したいときに
+main.pyを実行した後にできるcsvなどを初期化したいとき
 ```
-# サブモジュールの変更を取り消す
 cd bcrl
 git restore . 
-# Untracked filesを削除する
 sudo git clean -fd
-
-# .gitmoduleで指定されたバージョンに戻す
 git submodule update --init --recursive
 ```
 
@@ -64,3 +73,4 @@ git init
 git submodule add git@github.com:SmartGridLab/battery-control-by-reinforcement-learning.git bcrlapp
 git remote add origin git@github.com:pklsat/bcrl.git
 git push -u origin main
+```

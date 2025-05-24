@@ -7,9 +7,8 @@ from typing import Dict, List
 
 
 class DummyResponseGenerator:
-    def __init__(self, response_dir: Path, interval: int = 30):
+    def __init__(self, response_dir: Path):
         self.response_dir = response_dir
-        self.interval = interval
         self.response_dir.mkdir(parents=True, exist_ok=True)
 
     def generate_schedule(self) -> List[Dict]:
@@ -57,7 +56,7 @@ class DummyResponseGenerator:
 
     def run(self, req_id: str):
         print(f"[MAIN] [INFO] Processing req_id: {req_id}")
-        time.sleep(self.interval)
+        time.sleep(30)  # Simulate processing time
         self.save_response(req_id)
         print(f"[MAIN] [INFO] Job {req_id} completed.")
 
@@ -65,7 +64,6 @@ class DummyResponseGenerator:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("req_id", type=str, help="Request ID")
-    parser.add_argument("main_interval", type=int, help="Main interval in seconds")
     parser.add_argument(
         "--response-dir",
         type=Path,
@@ -77,7 +75,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    generator = DummyResponseGenerator(response_dir=args.response_dir, interval=args.main_interval)
+    generator = DummyResponseGenerator(response_dir=args.response_dir)
     generator.run(args.req_id)
 
 

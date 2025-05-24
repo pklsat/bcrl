@@ -52,11 +52,11 @@ class JobRunner:
         self.main_script = main_script
         self.status_manager = status_manager
 
-    def run(self, req_id: str, interval: int):
+    def run(self, req_id: str):
         """Run the main script for the given job and update its status."""
         try:
             subprocess.run(
-                ["python", self.main_script, req_id, str(interval)],
+                ["python", self.main_script, req_id],
                 check=True
             )
             status_data = self.status_manager.load()
@@ -87,7 +87,7 @@ class JobMonitor:
 
                 req_id = pending_jobs[0]
                 self.status_manager.update_status(status_data, req_id, "Processing")
-                self.job_runner.run(req_id, self.interval)
+                self.job_runner.run(req_id)
 
             except Exception as e:
                 print(f"[MONITOR] [ERROR] {e}")
