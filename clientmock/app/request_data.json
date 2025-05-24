@@ -5,7 +5,8 @@
         "day": 1,
         "hour": 0,
         "minute": 30,
-        "month": 9
+        "month": 9,
+        "year": 2023
     },
     "sample2": {
         "api": "soc",
@@ -13,6 +14,7 @@
         "day": 2,
         "hour": 0,
         "minute": 30,
-        "month": 9
+        "month": 9,
+        "year": 2023
     }
 }

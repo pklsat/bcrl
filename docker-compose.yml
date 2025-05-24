@@ -1,14 +1,14 @@
 services:
-  # bcrlapp:
-  #   profiles: ["production"]
-  #   build:
-  #     context: ./bcrlapp/.devcontainer
-  #   ports:
-  #     - "4000:4000"
-  #   volumes:
-  #     - ./bcrlapp:/bcrlapp
-  #     - shared:/shared
-  #   command: sleep infinity
+  bcrlapp:
+    profiles: ["production"]
+    build:
+      context: ./bcrlapp/.devcontainer
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./bcrlapp:/bcrlapp
+      - shared:/shared
+    command: python -u /bcrlapp/Battery-Control-By-Reinforcement-Learning/status_monitor.py 30
 
   bcrlapi:
     profiles: ["production" , "dev", "test"] 
@@ -44,7 +44,7 @@ services:
       - "4003:80"
 
   bcrlmock:
-    profiles: ["dev", "test", "production"] #bcrlappができたらproductionは消す
+    profiles: ["dev", "test"] #bcrlappができたらproductionは消す
     build:
       context: ./bcrlmock
     ports:
