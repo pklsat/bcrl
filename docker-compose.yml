@@ -2,13 +2,13 @@ services:
   bcrlapp:
     profiles: ["production"]
     build:
-      context: ./bcrlapp/.devcontainer
+      context: ./bcrlapp
     ports:
       - "4000:4000"
     volumes:
       - ./bcrlapp:/bcrlapp
       - shared:/shared
-    command: python -u /bcrlapp/Battery-Control-By-Reinforcement-Learning/status_monitor.py 30
+    command: python -u /bcrlapp/status_monitor.py 30
 
   bcrlapi:
     profiles: ["production" , "dev", "test"] 
@@ -18,7 +18,7 @@ services:
       - "4001:80"
     volumes:
       - ./bcrlapi:/bcrlapi
-      - ./bcrlapi/.devcontainer:/bcrlapi/.devcontainer
+      - ./bcrlapi:/bcrlapi
       - shared:/shared
     entrypoint: [ "/bcrlapi/entrypoint.sh" ]
     command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
