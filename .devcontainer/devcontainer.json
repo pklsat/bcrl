@@ -4,5 +4,8 @@
     "../docker-compose.yml"
   ],
   "service": "bcrlapi",
-  "workspaceFolder": "/bcrlapi"
+  "workspaceFolder": "/bcrlapi",
+  "runServices": [
+    "bcrlapi"
+  ]
 }
