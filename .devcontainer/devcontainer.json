@@ -4,25 +4,5 @@
     "../docker-compose.yml"
   ],
   "service": "bcrlapi",
-  "workspaceFolder": "/bcrlapi",
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash",
-        "python.pythonPath": "/usr/local/bin/python", // Pythonインタプリタのパスを指定（VS Codeが使うPythonの場所を明示）
-        "editor.formatOnSave": true                   // ファイル保存時に自動でコードフォーマットを実行
-      },
-      "extensions": [
-        "ms-python.python",                // Python開発用の拡張機能
-        "ms-azuretools.vscode-docker",     // Dockerコンテナ管理用の拡張機能
-        "ms-python.vscode-pylance",        // 高速なPython言語サーバ（型チェックや補完が強化される）
-        "esbenp.prettier-vscode"           // コードフォーマッタPrettier（主にJavaScript/TypeScript/JSONなどの整形）
-      ]
-    }
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {}
-  },
-  "postCreateCommand": "pip install -r requirements.txt || true",
-  "remoteUser": "root"
+  "workspaceFolder": "/bcrlapi"
 }
