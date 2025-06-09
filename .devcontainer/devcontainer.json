@@ -21,8 +21,7 @@
     }
   },
   "features": {
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/gh-release:1": {}
+    "ghcr.io/devcontainers/features/git:1": {}
   },
   "postCreateCommand": "pip install -r requirements.txt || true",
   "remoteUser": "root"
