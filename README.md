@@ -10,7 +10,7 @@ https://github.com/SmartGridLab/battery-control-by-reinforcement-learning
 # 初回Clone
 サブモジュールも含めてclone
 ```
-git clone --recurse-submodules git@github.com:pklsat/bcrlapi.git
+git clone --recurse-submodules git@github.com:pklsat/bcrl.git
 ```
 
 # build

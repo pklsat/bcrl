@@ -2,8 +2,11 @@
 react + vite + nginxのwebアプリケーション
 
 # アクセス
-- ジョブ一覧画面
+- 開発
 http://localhost:4002/
+- 本番
+http://localhost:4003/
+
 
 # 参考
 - [Vite](https://ja.vitejs.dev/)
