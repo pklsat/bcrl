@@ -3,6 +3,7 @@ services:
     profiles: ["production"]
     build:
       context: ./bcrlapp
+      dockerfile: .devcontainer/Dockerfile
     ports:
       - "4000:4000"
     volumes:
