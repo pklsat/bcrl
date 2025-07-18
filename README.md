@@ -17,7 +17,7 @@ git clone --recurse-submodules git@github.com:pklsat/bcrl.git
 ## 開発環境
 起動
 ```
-docker-compose --profile dev up -d --build
+cd bcrl && docker-compose --profile dev up -d --build
 ```
 停止
 ```
